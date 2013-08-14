@@ -6,6 +6,9 @@ KISSY.add("mvc/model", function (S, Base) {
 
     var blacklist = [
         "idAttribute",
+        "destroyed",
+        "plugins",
+        "listeners",
         "clientId",
         "urlRoot",
         "url",
@@ -20,16 +23,13 @@ KISSY.add("mvc/model", function (S, Base) {
      * @member MVC
      * @extends KISSY.Base
      */
-    function Model() {
-        var self = this;
-        Model.superclass.constructor.apply(self, arguments);
-        /*
-         *Change should bubble to its collections
-         */
-        self.collections = {};
-    }
-
-    S.extend(Model, Base,{
+   return Base.extend({
+       initializer:function(){
+           /*
+            *Change should bubble to its collections
+            */
+           this.collections = {};
+       },
 
             /**
              * Add current model instance to a specified collection.
@@ -59,13 +59,13 @@ KISSY.add("mvc/model", function (S, Base) {
              * Set current model 's id.
              * @param id
              */
-            setId:function (id) {
+            'setId':function (id) {
                 return this.set(this.get("idAttribute"), id);
             },
 
             setInternal:function () {
                 this.__isModified = 1;
-                return Model.superclass.setInternal.apply(this, arguments);
+                return this.callSuper.apply(this,arguments);
             },
 
             /**
@@ -285,9 +285,6 @@ KISSY.add("mvc/model", function (S, Base) {
         base = base + (base.charAt(base.length - 1) == '/' ? '' : '/');
         return base + encodeURIComponent(this.getId()) + "/";
     }
-
-    return Model;
-
 }, {
     requires:['base']
 });

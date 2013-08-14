@@ -161,6 +161,9 @@
             var args = S.makeArray(arguments),
                 len = args.length - 2,
                 i = 1,
+                p,
+                proto,
+                arg,
                 ov = args[len],
                 wl = args[len + 1];
 
@@ -175,7 +178,19 @@
             }
 
             for (; i < len; i++) {
-                S.mix(r.prototype, args[i].prototype || args[i], ov, wl);
+                arg = args[i];
+                if (proto = arg.prototype) {
+                    arg = {};
+                    var protoArray = S.keys(proto);
+                    var protoLen = protoArray.length;
+                    for (var j = 0; j < protoLen; j++) {
+                        p = protoArray[j];
+                        if (p != 'constructor') {
+                            arg[p] = proto[p];
+                        }
+                    }
+                }
+                S.mix(r.prototype, arg, ov, wl);
             }
 
             return r;
@@ -200,10 +215,14 @@
             var sp = s.prototype,
                 rp;
 
+            // in case parent does not set constructor
+            // eg: parent.prototype={};
+            sp.constructor = s;
+
             // add prototype chain
             rp = createObject(sp, r);
             r.prototype = S.mix(rp, r.prototype);
-            r.superclass = createObject(sp, s);
+            r.superclass = sp;
 
             // add prototype overrides
             if (px) {

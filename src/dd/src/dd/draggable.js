@@ -3,8 +3,7 @@
  * dd support for kissy, drag for dd
  * @author yiminghe@gmail.com
  */
-KISSY.add('dd/draggable', function (S, Node, RichBase, DDM) {
-
+KISSY.add('dd/draggable', function (S, Node, Base, DDM) {
     var UA = S.UA,
         $ = Node.all,
         each = S.each,
@@ -16,10 +15,10 @@ KISSY.add('dd/draggable', function (S, Node, RichBase, DDM) {
 
     /**
      * @class KISSY.DD.Draggable
-     * @extends KISSY.RichBase
+     * @extends KISSY.Base
      * Provide abilities to make specified node draggable
      */
-    var Draggable = RichBase.extend({
+    var Draggable = Base.extend({
         initializer: function () {
             var self = this;
             self.addTarget(DDM);
@@ -802,36 +801,35 @@ KISSY.add('dd/draggable', function (S, Node, RichBase, DDM) {
             preventDefaultOnMove: {
                 value: true
             }
+        },
+
+        inheritedStatics: {
+            /**
+             * drag drop mode enum.
+             * @enum {String} KISSY.DD.Draggable.DropMode
+             */
+            DropMode: {
+                /**
+                 * In point mode, a Drop is targeted by the cursor being over the Target
+                 */
+                'POINT': 'point',
+                /**
+                 * In intersect mode, a Drop is targeted by 'part' of the drag node being over the Target
+                 */
+                INTERSECT: 'intersect',
+                /**
+                 * In strict mode, a Drop is targeted by the 'entire' drag node being over the Target
+                 */
+                STRICT: 'strict'
+            }
         }
     });
-
-    /**
-     * drag drop mode enum.
-     * @enum {String} KISSY.DD.Draggable.DropMode
-     */
-    Draggable.DropMode = {
-        /**
-         * In point mode, a Drop is targeted by the cursor being over the Target
-         */
-        'POINT': 'point',
-        /**
-         * In intersect mode, a Drop is targeted by 'part' of the drag node being over the Target
-         */
-        INTERSECT: 'intersect',
-        /**
-         * In strict mode, a Drop is targeted by the 'entire' drag node being over the Target
-         */
-        STRICT: 'strict'
-    };
-
-    S.mix(Draggable, Draggable.DropMode);
 
     var _ieSelectBack;
 
     function fixIEMouseUp() {
         doc.body.onselectstart = _ieSelectBack;
     }
-
 
     // prevent select text in ie
     function fixIEMouseDown() {
@@ -873,7 +871,6 @@ KISSY.add('dd/draggable', function (S, Node, RichBase, DDM) {
     };
 
     return Draggable;
-
 }, {
-    requires: ['node', 'rich-base', './ddm']
+    requires: ['node', 'base', './ddm']
 });

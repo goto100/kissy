@@ -3,21 +3,13 @@
  */
 
 KISSY.add(function (S, Base) {
-
-
-    describe('base', function () {
-
+    describe('base attr', function () {
         it('拥有 EventTarget 上的方法', function () {
-
-            function A() {
-                Base.call(this);
-            }
-
-            S.extend(A, Base);
+            var A = Base.extend();
 
             var a = new A();
 
-            var fired;
+            var fired = false;
             a.on('xxx', function () {
                 fired = true;
             });
@@ -26,12 +18,7 @@ KISSY.add(function (S, Base) {
         });
 
         it('拥有 Attribute 上的方法', function () {
-
-            function A() {
-                Base.call(this);
-            }
-
-            S.extend(A, Base);
+            var A = Base.extend();
 
             var a = new A();
 
@@ -70,33 +57,26 @@ KISSY.add(function (S, Base) {
         });
 
         it('能解析 ATTRS 和 config', function () {
-
-            function A(config) {
-                Base.call(this, config);
-            }
-
-            S.extend(A, Base);
-            A.ATTRS = {
-                attr1: {
-                    value: 0
+            var A = Base.extend({}, {
+                ATTRS: {
+                    attr1: {
+                        value: 0
+                    }
                 }
-            };
+            });
 
             var a = new A({ attr1: 1, attr2: 2 });
             expect(a.get('attr1')).toBe(1);
             expect(a.get('attr2')).toBe(2);
 
             // 多重继承
-            function B(config) {
-                A.call(this, config);
-            }
-
-            S.extend(B, A);
-            B.ATTRS = {
-                'b-attr': {
-                    value: 'b'
+            var B = A.extend({}, {
+                ATTRS: {
+                    'b-attr': {
+                        value: 'b'
+                    }
                 }
-            };
+            });
 
             var b = new B({ 'b-attr': 3 });
             expect(b.get('b-attr')).toBe(3);
@@ -105,12 +85,7 @@ KISSY.add(function (S, Base) {
         });
 
         it('能正确触发 Attribute 的事件', function () {
-
-            function A() {
-                Base.call(this);
-            }
-
-            S.extend(A, Base);
+            var A = Base.extend();
 
             var a = new A();
 
@@ -140,13 +115,8 @@ KISSY.add(function (S, Base) {
             a.set('attr3', 4);
         });
 
-
         it('can preventDefault beforeChange to prevent set', function () {
-            function A() {
-                Base.call(this);
-            }
-
-            S.extend(A, Base);
+            var A = Base.extend();
 
             var a = new A();
 
@@ -159,13 +129,8 @@ KISSY.add(function (S, Base) {
             expect(a.get('attr2')).toBe(2);
         });
 
-
         it('can stopImmediatePropagation beforeChange', function () {
-            function A() {
-                Base.call(this);
-            }
-
-            S.extend(A, Base);
+            var A = Base.extend();
 
             var a = new A();
 
@@ -182,17 +147,13 @@ KISSY.add(function (S, Base) {
         });
 
         it('transfer default value to value', function () {
-            function A() {
-                Base.call(this);
-            }
-
-            S.extend(A, Base);
-
-            A.ATTRS = {
-                a: {
-                    value: 9
+            var A = Base.extend({}, {
+                ATTRS: {
+                    a: {
+                        value: 9
+                    }
                 }
-            };
+            });
 
             var a = new A();
 
@@ -208,9 +169,7 @@ KISSY.add(function (S, Base) {
 
             expect(a['__attrs']['a'].value).toBe(9);
         });
-
-
     });
-},{
-    requires:['base']
+}, {
+    requires: ['base']
 });

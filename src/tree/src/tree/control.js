@@ -24,14 +24,14 @@ KISSY.add("tree/control", function (S, TreeNode, TreeManager) {
         handleKeyDownInternal: function (e) {
             var current = this.get("selectedItem");
             if (current === this) {
-                return Tree.superclass.handleKeyDownInternal.call(current, e);
+                return this.callSuper(e);
             }
             return current && current.handleKeyDownInternal(e);
         },
 
         _onSetFocused: function (v) {
             var self = this;
-            Tree.superclass._onSetFocused.apply(self, arguments);
+           self.callSuper(v);
             // 得到焦点时没有选择节点
             // 默认选择自己
             if (v && !self.get("selectedItem")) {

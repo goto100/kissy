@@ -124,11 +124,11 @@ KISSY.add("combobox/control", function (S, Node, Control, ComboBoxRender, Menu, 
                 }
             },
 
-            handleBlurInternal: function () {
+            handleBlurInternal: function (e) {
                 // S.log('blur');
                 var self = this,
                     placeholderEl = self.get("placeholderEl");
-                ComboBox.superclass.handleBlurInternal.apply(self, arguments);
+                self.callSuper(e);
                 delayHide(self);
                 if (self.get('invalidEl')) {
                     self.validate(function (error, val) {
@@ -150,7 +150,7 @@ KISSY.add("combobox/control", function (S, Node, Control, ComboBoxRender, Menu, 
                 var self = this,
                     target,
                     trigger;
-                ComboBox.superclass.handleMouseDownInternal.apply(self, arguments);
+                self.callSuper(e);
                 target = e.target;
                 trigger = self.get("trigger");
                 if (trigger && (trigger[0] == target || trigger.contains(target))) {
@@ -237,6 +237,7 @@ KISSY.add("combobox/control", function (S, Node, Control, ComboBoxRender, Menu, 
                     var v = self.getValueForAutocomplete();
                     if (v !== undefined) {
                         self.sendRequest(v);
+                        return true;
                     }
                 }
                 return  undefined;

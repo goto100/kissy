@@ -1,25 +1,21 @@
-KISSY.add(function (S, RichBase) {
-
+KISSY.add(function (S, Base) {
     describe('rich-base', function () {
-
         it('support initializer and destructor', function () {
-
             var initializerCalled = 0,
                 destructorCalled = 0;
 
-            var T = RichBase.extend({
+            var T = Base.extend({
                 initializer: function () {
                     initializerCalled++;
                 },
                 destructor: function () {
                     destructorCalled++;
                 }
-            },{
-                name:'TestTT'
+            }, {
+                name: 'TestTT'
             });
 
             expect(T.toString().indexOf('TestTT')).not.toBe(-1);
-
             var t = new T();
 
             expect(initializerCalled).toBe(1);
@@ -27,7 +23,6 @@ KISSY.add(function (S, RichBase) {
             t.destroy();
 
             expect(destructorCalled).toBe(1);
-
         });
 
         it('support extension', function () {
@@ -58,7 +53,7 @@ KISSY.add(function (S, RichBase) {
                 }
             };
 
-            var T = RichBase.extend([Ext1, Ext2], {
+            var T = Base.extend([Ext1, Ext2], {
                 initializer: function () {
                     initializer.push(3);
                 },
@@ -120,7 +115,7 @@ KISSY.add(function (S, RichBase) {
 
             };
 
-            var T = RichBase.extend({
+            var T = Base.extend({
                 initializer: function () {
                     initializer.push(3);
                 },
@@ -192,7 +187,7 @@ KISSY.add(function (S, RichBase) {
 
             };
 
-            var T = RichBase.extend({
+            var T = Base.extend({
                 isT: 1,
                 initializer: function () {
                     initializer.push(3);
@@ -283,7 +278,7 @@ KISSY.add(function (S, RichBase) {
 
             };
 
-            var T = RichBase.extend({
+            var T = Base.extend({
                 initializer: function () {
                     initializer.push(3);
                 },
@@ -308,8 +303,8 @@ KISSY.add(function (S, RichBase) {
 
             var xx = [];
 
-            var T = RichBase.extend({
-                _onSetXx: function (v) {
+            var T = Base.extend({
+                '_onSetXx': function (v) {
                     xx.push(v);
                 }
             }, {
@@ -331,64 +326,149 @@ KISSY.add(function (S, RichBase) {
 
         });
 
-        it('support parent', function() {
-            var A = RichBase.extend({
-                m: function(value) {
+        it('support callSuper', function () {
+            var A = Base.extend({
+                m: function (value) {
                     return 'a' + value;
                 },
-                m2: function(value) {
+                m2: function (value) {
                     return 'a' + value;
                 }
             });
 
             var B = A.extend({
-                m: function(value) {
-                    var parent = S.bind(this.parent, this);
-                    var parent2 = S.bind(this.parent, arguments.callee, this);
+                m2: function (value) {
+                    return 'b' + this.callSuper(value);
+                },
+                m: function (value) {
+                    var superFn = S.bind(this.callSuper, arguments.callee, this);
 
                     // 普通的
-                    var t0 = this.parent(value);
+                    var t0 = this.callSuper(value);
 
-                    // 闭包情况下通过 caller 获取 parent
-                    var t1;
-                    (function() {
-                        (function() {
-                            (function() {
-                                t1 = parent(1);
+                    // 闭包情况下通过 caller 获取 callSuper
+                    var t1 = '';
+                    (function () {
+                        (function () {
+                            (function () {
+                                t1 = superFn(1);
                             })();
                         })();
                     })();
 
-                    // 递归情况下通过提前绑定 arguments.callee 获取 parent
+                    // 递归情况下通过提前绑定 arguments.callee 获取 callSuper
                     var times = 0;
                     var t2 = '';
                     (function t() {
                         if (times++ >= 2) return;
-                        t2 += parent2(2);
+                        t2 += superFn(2);
                         t();
                     })();
 
                     return t0 + t1 + t2 + 'b' + value;
-                },
-                m2: function(value) {
-                    return 'b' + this.parent(value);
                 }
             });
 
             var C = B.extend({
-                m2: function(value) {
-                    return 'c' + this.parent.apply(this, arguments);
+                m2: function () {
+                    return 'c' + this.callSuper.apply(this, arguments);
                 }
             });
 
             var c = new C();
-
             expect(c.m(0)).toEqual('a0a1a2a2b0');
             expect(c.m2(0)).toBe('cba0');
         });
 
+        it('support shared proto', function () {
+            var x = {
+                x: function () {
+                    return this.callSuper();
+                }
+            };
+
+            var X = Base.extend({
+                x: function () {
+                    return 'x'
+                }
+            }, {
+                name: 'X'
+            });
+
+            var Y = X.extend(x, {
+                name: 'Y'
+            });
+
+            var Z = Base.extend({
+                x: function () {
+                    return 'z'
+                }
+            }, {
+                name: 'Z'
+            });
+
+            var Y2 = Z.extend(x, {
+                name: 'Y2'
+            });
+
+            expect(new Y().x()).toBe('x');
+            expect(new Y2().x()).toBe('z');
+        });
+
+
+        it('_onSet will run by order', function () {
+            var order = [];
+            var X = Base.extend({
+                _onSetX: function () {
+                    order.push(1);
+                },
+                '_onSetZ': function () {
+                    order.push(2);
+                }
+            }, {
+                ATTRS: {
+                    x: {
+                        value: 2
+                    },
+                    z: {
+                        value: 2
+                    }
+                }
+            });
+
+            var Y = X.extend({
+                _onSetY: function () {
+                    order.push(33);
+                },
+                _onSetX: function () {
+                    order.push(11);
+                }
+            }, {
+                ATTRS: {
+                    y: {
+                        value: 1
+                    }
+                }
+            });
+
+            new Y();
+
+            expect(order).toEqual([11, 2, 33]);
+        });
+
+        it('support inheritedStatics', function () {
+            var t = {};
+            var X = Base.extend({}, {
+                inheritedStatics: {
+                    z: t
+                }
+            });
+            var Z = X.extend();
+            expect(X.z).toBe(t);
+            expect(Z.z).toBe(t);
+        });
     });
 
-},{
-    requires:['rich-base']
+}, {
+    requires: ['base']
 });

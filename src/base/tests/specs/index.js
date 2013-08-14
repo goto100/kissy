@@ -1,4 +1,4 @@
 KISSY.add(function () {
 }, {
-    requires: ['./base', './complex']
+    requires: ['./base-attr', './complex-attr','./class']
 });

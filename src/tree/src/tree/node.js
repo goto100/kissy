@@ -14,8 +14,7 @@ KISSY.add("tree/node", function (S, Node, Container, TreeNodeRender) {
      * @member Tree
      * @extends KISSY.Component.Control
      */
-    var TreeNode = Container.extend({
-
+   return Container.extend({
         bindUI: function () {
             this.on('afterAddChild', onAddChild);
             this.on('afterRemoveChild', onRemoveChild);
@@ -42,7 +41,6 @@ KISSY.add("tree/node", function (S, Node, Container, TreeNodeRender) {
 
             // 顺序统统为前序遍历顺序
             switch (keyCode) {
-
                 case KeyCode.ENTER:
                     return self.handleClickInternal(e);
                     break;
@@ -164,7 +162,7 @@ KISSY.add("tree/node", function (S, Node, Container, TreeNodeRender) {
          */
         createChildren: function () {
             var self = this;
-            TreeNode.superclass.renderChildren.apply(self, arguments);
+           self.renderChildren.apply(self, arguments);
             // only sync child sub tree at root node
             if (self === self.get('tree')) {
                 updateSubTreeStatus(self, self, -1, 0);
@@ -208,9 +206,13 @@ KISSY.add("tree/node", function (S, Node, Container, TreeNodeRender) {
         }
     }, {
         ATTRS: {
-
             xrender: {
                 value: TreeNodeRender
+            },
+
+            checkable: {
+                value: false,
+                view: 1
             },
 
             // 事件代理
@@ -304,7 +306,6 @@ KISSY.add("tree/node", function (S, Node, Container, TreeNodeRender) {
         },
         xclass: 'tree-node'
     });
-
 
     // # ------------------- private start
 
@@ -431,9 +432,6 @@ KISSY.add("tree/node", function (S, Node, Container, TreeNodeRender) {
     }
 
     // # ------------------- private end
-
-    return TreeNode;
-
 }, {
     requires: ['node', 'component/container', './node-render']
 });
